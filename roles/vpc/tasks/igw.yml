@@ -1,0 +1,39 @@
+- name: IGW |  Create Internet Gateway for VPC
+  ec2_vpc_igw:
+    vpc_id:           "{{ vpc_id }}"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    state:            "present"
+  register: my_vpc_igw
+
+- name:               Set Internet Gateway ID in variable
+  set_fact:
+    igw_id:           "{{ my_vpc_igw.gateway_id }}"
+
+
+- name: NGW | Create NAT Gateway [AZ-1]
+  ec2_vpc_nat_gateway:
+    state: present
+    subnet_id: "{{ public_subnet_az1_id }}"
+    wait: yes
+    region: "{{ aws_region }}"
+    if_exist_do_not_create: true
+  register: my_nat_gateway_z1
+
+- name: NGW | Set Nat Gateway ID in variable [AZ-1]
+  set_fact:
+    nat_gateway_az1_id: "{{ my_nat_gateway_z1.nat_gateway_id }}"
+
+- name: NGW | Create NAT Gateway [AZ-2]
+  ec2_vpc_nat_gateway:
+    state: present
+    subnet_id: "{{ public_subnet_az2_id }}"
+    wait: yes
+    region: "{{ aws_region }}"
+    if_exist_do_not_create: true
+  register: my_nat_gateway_z2
+
+- name: NGW | Set Nat Gateway ID in variable [AZ-2]
+  set_fact:
+    nat_gateway_az2_id: "{{ my_nat_gateway_z2.nat_gateway_id }}"

@@ -1,0 +1,5 @@
+#User creation
+
+ssh_users:
+    - { name: "user1", key: 'user1.pub' , state: "present"}
+    - { name: "user2", key: 'user2.pub' , state: "present"}

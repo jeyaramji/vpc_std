@@ -1,0 +1,55 @@
+- name: USERADD | create user
+  user:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+  with_items: 
+    - "{{ ssh_users }}"
+  register: username
+
+- name: USERADD | fetch PEM file - Private
+  fetch:
+    src: "/home/{{ item.name }}/.ssh/id_rsa"
+    dest: "keys/private/{{ item.name }}.pem"
+    flat: yes
+  with_items: 
+    - "{{ ssh_users }}"
+  when: item.state == 'present'
+
+- name: USERADD | fetch PEM file - Public
+  fetch:
+    src: "/home/{{ item.name }}/.ssh/id_rsa.pub"
+    dest: "keys/public/{{ item.name }}.pub"
+    flat: yes
+  with_items:
+    - "{{ ssh_users }}"
+  when: item.state == 'present'
+
+- name: USERADD | Set authorized authorized_keys for users
+  authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ lookup('file', 'keys/public/{{ item.name }}.pub') }}"
+  with_items:
+    - "{{ ssh_users }}"
+  when: item.state == 'present'
+
+- name: USERADD | Clean keys directory locally - Public
+  local_action: file path="keys/public/{{ item.name }}.pub" state="absent"
+  with_items: 
+    - "{{ ssh_users }}"
+  when: item.state == 'present'
+
+- name: USERADD | Set Permission 0600 for PEM locally - Private Key
+  local_action: file mode=0600 path="keys/private/{{ item.name }}.pem"
+  with_items: 
+    - "{{ ssh_users }}"
+  when: item.state == 'present'
+
+- name: USERDEL |  Clean keys in directory locally - Private
+  local_action: file path="keys/private/{{ item.name }}.pem" state="absent"
+  with_items: 
+    - "{{ ssh_users }}"
+  when: item.state == 'absent'

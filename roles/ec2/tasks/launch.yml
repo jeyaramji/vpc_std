@@ -1,0 +1,55 @@
+---
+- name: EC2 | Create an EC2 key
+  ec2_key:
+    name: "{{ vpc_name }}-{{ env }}-key"
+    region: "{{ aws_region }}"
+    state: present
+  register: ec2_key
+
+- name: EC2-Keypair | save private key
+  copy:
+    content: "{{ ec2_key.key.private_key }}" 
+    dest: "./aws-{{ env }}-private.pem" 
+    mode: 0600
+  when: ec2_key.changed
+
+- name: EC2 | Create an EC2 instance
+  ec2:
+    key_name: "{{ vpc_name }}-{{ env }}-key"
+    region: "{{ aws_region }}"
+    vpc_subnet_id: "{{ my_public_subnet_az1.subnet.id }}"
+    group_id: "{{ main_sg_id }}"
+    instance_type: "{{ instance_type }}"
+    image: "{{ ami }}"
+    assign_public_ip: yes
+    wait: yes
+    instance_tags:
+      env: "{{ env }}"
+      app: "web"
+      Name: "webserver"
+    count_tag: env
+    exact_count: 1
+  register: ec2
+
+- name: EC2 | Add new instance to host group
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: ec2_hosts
+  with_items: "{{ ec2.instances }}"
+
+- name: EC2 | Add host to inventory
+  lineinfile:
+    dest: "./inventory" 
+    regexp: "{{ item }}" 
+    insertafter: "[ec2_hosts]" 
+    line: "{{ ansible_hostname }} host_key_checking=false ansible_host={{ item.public_ip }} ansible_connection=ssh ansible_private_key_file=aws-{{ env }}-private.pem ansible_user=ec2-user"
+  with_items: "{{ ec2.instances }}"
+
+- name: EC2-SSH | Wait for SSH to come up
+  wait_for:
+    host: "{{ item.public_ip }}"
+    port: 22
+    delay: 60
+    timeout: 320
+    state: started
+  with_items: "{{ ec2.instances }}"

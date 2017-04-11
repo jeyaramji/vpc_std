@@ -1,0 +1,68 @@
+---
+- name: SUBNET | Create Public Subnet [AZ-1]
+  ec2_vpc_subnet:
+    state:            "present"
+    vpc_id:           "{{ vpc_id }}"
+    cidr:             "10.0.1.0/24"
+    az:               "{{ aws_region }}b"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    resource_tags:
+      Name:           "{{ vpc_name }}-Public_subnet-{{ aws_region }}b"
+  register: my_public_subnet_az1
+
+- name: SUBNET | Set Public Subnet ID in variable [AZ-1]
+  set_fact:
+    public_subnet_az1_id: "{{ my_public_subnet_az1.subnet.id }}"
+
+- name: SUBNET | Create Private Subnet [AZ-1]
+  ec2_vpc_subnet:
+    state:            "present"
+    vpc_id:           "{{ vpc_id }}"
+    cidr:             "10.0.2.0/24"
+    az:               "{{ aws_region }}b"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    resource_tags:
+      Name:           "{{ vpc_name }}-Private_subnet-{{ aws_region }}b"
+  register: my_private_subnet_az1
+
+- name: SUBNET | Set Private Subnet ID in variable [AZ-1]
+  set_fact:
+    private_subnet_az1_id: "{{ my_private_subnet_az1.subnet.id }}"
+
+- name: SUBNET | Create Public Subnet [AZ-2]
+  ec2_vpc_subnet:
+    state:            "present"
+    vpc_id:           "{{ vpc_id }}"
+    cidr:             "10.0.11.0/24"
+    az:               "{{ aws_region }}c"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    resource_tags:
+      Name:           "{{ vpc_name }}-Public_subnet-{{ aws_region }}c"
+  register: my_public_subnet_az2
+
+- name: SUBNET | Set Public Subnet ID in variable [AZ-2]
+  set_fact:
+    public_subnet_az2_id: "{{ my_public_subnet_az2.subnet.id }}"
+
+- name: SUBNET | Create Private Subnet [AZ-2]
+  ec2_vpc_subnet:
+    state:            "present"
+    vpc_id:           "{{ vpc_id }}"
+    cidr:             "10.0.12.0/24"
+    az:               "{{ aws_region }}c"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ aws_access_key }}"
+    aws_secret_key:   "{{ aws_secret_key }}"
+    resource_tags:
+      Name:           "{{ vpc_name }}-Private_subnet-{{ aws_region }}c"
+  register: my_private_subnet_az2
+
+- name: SUBNET | Set Private Subnet ID in variable [AZ-2]
+  set_fact:
+    private_subnet_az2_id: "{{ my_private_subnet_az2.subnet.id }}"

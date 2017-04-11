@@ -1,0 +1,6 @@
+---
+- include: vpc.yml
+- include: subnet.yml
+- include: igw.yml
+- include: route.yml
+- include: sg.yml

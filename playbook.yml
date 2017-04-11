@@ -1,0 +1,23 @@
+---
+- hosts: 127.0.0.1
+  vars_prompt:
+    - name: "vpc_name"
+      prompt: "vpc_name?"
+      private: no
+  vars_files:
+    - roles/vpc/group_vars/all
+    - roles/ec2/group_vars/all
+  roles:
+    - vpc
+    - ec2
+
+- hosts: ec2_hosts
+  become: yes
+  become_user: root
+  remote_user: ec2-user
+  vars_files:
+    - roles/vpc/group_vars/all
+    - roles/ec2/group_vars/all
+    - roles/post_build/group_vars/user.yml
+  roles:
+    - post_build

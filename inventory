@@ -1,0 +1,5 @@
+[local]
+localhost ansible_connection=local
+
+[ec2_hosts]
+ip-172-31-2-33 host_key_checking=false ansible_host=54.236.37.73 ansible_connection=ssh ansible_private_key_file=aws-staging-private.pem ansible_user=ec2-user

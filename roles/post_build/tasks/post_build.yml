@@ -1,0 +1,24 @@
+---
+- name: RPM | Copying the rpm list to remote host
+  copy:
+    src: ./files/rpm_to_update
+    dest: /tmp/rpm_to_update
+    owner: root
+    group: root
+    mode: 0644
+
+- name: RPM | Get the rpm list from file
+  command: cat /tmp/rpm_to_update
+  register: my_items
+
+- name: RPM | Installing rpms
+  yum: 
+    name: "{{item}}" 
+    state: latest
+  with_items: 
+    - "{{ my_items.stdout_lines }}"
+
+- name: AWSCLI | Executing files/rhel5_python27_awscli_install.sh
+  script: files/rhel5_python27_awscli_install.sh
+  args:
+    creates: /usr/local/python27/bin/aws

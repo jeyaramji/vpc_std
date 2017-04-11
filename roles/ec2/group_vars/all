@@ -1,0 +1,5 @@
+# EC2 Launch
+env: "staging"
+instance_type: "t2.micro"
+ami: "ami-00a11e68"
+app_code_user: "root"

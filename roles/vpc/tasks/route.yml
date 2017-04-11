@@ -1,0 +1,45 @@
+- name: ROUTE-TABLE | Set up public subnet route table
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_id }}"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tags:
+      Name: "{{ vpc_name }}-Public_RT-{{ aws_region }}"
+    subnets:
+      - "{{ public_subnet_az1_id }}"
+      - "{{ public_subnet_az2_id }}"
+    routes:
+      - dest: "0.0.0.0/0"
+        gateway_id: "{{ igw_id }}"
+  when: igw_id is defined
+
+- name: ROUTE-TABLE | Set up private subnet route table [AZ-1]
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_id }}"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tags:
+      Name: "{{ vpc_name }}-Private_RT-{{ aws_region }}"
+    subnets:
+      - "{{ private_subnet_az1_id }}"
+    routes:
+      - dest: "0.0.0.0/0"
+        gateway_id: "{{ nat_gateway_az1_id }}"
+  when: nat_gateway_az1_id != "null"
+
+- name: ROUTE-TABLE | Set up private subnet route table [AZ-2]
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_id }}"
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tags:
+      Name: "{{ vpc_name }}-Private_RT-{{ aws_region }}"
+    subnets:
+      - "{{ private_subnet_az2_id }}"
+    routes:
+      - dest: "0.0.0.0/0"
+        gateway_id: "{{ nat_gateway_az2_id }}"
+  when: nat_gateway_az2_id is defined

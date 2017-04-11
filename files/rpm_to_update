@@ -1,0 +1,14 @@
+elinks
+telnet
+cups
+gcc
+gdbm-devel
+readline-devel
+ncurses-devel
+zlib-devel
+bzip2-devel
+sqlite-devel
+db4-devel
+openssl-devel
+tk-devel
+bluez-libs-devel
